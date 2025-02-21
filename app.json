@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "gallaryApp",
+    "slug": "gallaryApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.st17931.gallaryApp"
+    },
+    "plugins": [
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
+        }
+      ]
+    ],
+    "splash": { 
+      "resizeMode": "contain",                
+      "backgroundColor": "#ffffff"            
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#ffffff"             
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2f2ec859-c33b-463c-8f17-d7957ac910f9"
+      }
+    }
+  }
+}
