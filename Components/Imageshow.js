@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet, Image, FlatList, TouchableOpacity, Text, StatusBar } from 'react-native';
+import { Modal, View, StyleSheet, Image, FlatList, TouchableOpacity, Text, StatusBar,Dimensions } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import ImageViewerHeader from './ImageViewerHeader';
 
@@ -8,82 +8,115 @@ export default function Imageshow({ images, goToHomePage, handleChooseNewFolder 
   const [showFlatList, setShowFlatList] = useState(true);
 
   const [initialIndex, setInitialIndex] = useState(0)
-  images = images.map((obj) => {
-    return {
-      url: obj.uri,
-      fileName: obj.filename
-    }
-  })
+  
+  // Get screen dimensions
+  const { width, height } = Dimensions.get('window');
 
-  console.log("imageShow component rendered")
+  const formattedImages = images.map((obj) => ({
+    url: obj.uri,
+    fileName: obj.filename,
+    width,
+    height,
+  }));
+console.log("imageShow component rendered")
 
   return (
     <Modal
       visible={true}
       transparent={false}
-      style={{ flex: 1, backgroundColor: 'black' }}
-      onRequestClose={() => {
-        goToHomePage();
-      }}
+      onRequestClose={goToHomePage}
     >
-     
-      {(images.length == 0) ? <View
-        style={styles.container}
-      >
-        <Text>No Image Found...!</Text>
-      </View> : <>
-        <ImageViewer
-          index={initialIndex}
-          imageUrls={images}
-          style={(showFlatList) ? { flex: 8 } : { flex: 1 }}
-          onChange={(index) => setInitialIndex(index)}
-          renderHeader={(index) => { return <ImageViewerHeader imageName={images[index]?.fileName} goToHomePage={goToHomePage} handleChooseNewFolder={handleChooseNewFolder} setShowFlatList={setShowFlatList} showFlatList={showFlatList} /> }}
-        />
-        {showFlatList && <View style={styles.flatListContainer}>
-          <FlatList
-            data={images}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setInitialIndex(index)
-                }}
-              >
+      <StatusBar hidden />
+      <View style={styles.modalContainer}>
+        {formattedImages.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text>No Image Found...!</Text>
+          </View>
+        ) : (
+          <>
+            <ImageViewer
+              index={initialIndex}
+              imageUrls={formattedImages}
+              style={styles.imageViewer}
+              backgroundColor="black"
+              onChange={(index) => setInitialIndex(index)}
+              saveToLocalByLongPress={false}
+              enableSwipeDown={false}
+              useNativeDriver={true}
+              renderImage={(props) => (
                 <Image
-                  source={{ uri: item.url }}
-                  style={styles.flatListImage}
+                  {...props}
+                  style={{
+                    width,
+                    height: showFlatList ? height - 100 : height,
+                    resizeMode:"cover", 
+                  }}
                 />
-              </TouchableOpacity>
+              )}
+              renderHeader={(index) => (
+                <ImageViewerHeader
+                  imageName={formattedImages[index]?.fileName}
+                  goToHomePage={goToHomePage}
+                  handleChooseNewFolder={handleChooseNewFolder}
+                  setShowFlatList={setShowFlatList}
+                  showFlatList={showFlatList}
+                />
+              )}
+            />
+            {showFlatList && (
+              <View style={styles.thumbnailContainer}>
+                <FlatList
+                  data={formattedImages}
+                  horizontal
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity onPress={() => setInitialIndex(index)}>
+                      <Image
+                        source={{ uri: item.url }}
+                        style={styles.thumbnailImage}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item, index) => index.toString()}
+                />
+              </View>
             )}
-            keyExtractor={(item, index) => index.toString()}
-            horizontal
-          />
-        </View>}
-
-
-      </>}
-
+          </>
+        )}
+      </View>
     </Modal>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+    padding: 0,
+    margin: 0,
+  },
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
-    gap: 10,
+    backgroundColor: 'white',
   },
-  flatListContainer: {
+  imageViewer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    backgroundColor: 'black',
   },
-  flatListImage: {
-    width: 100,
-    height: '100%',
-    margin: 5,
-    borderRadius: 10,
+  thumbnailContainer: {
+    height: 100,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  thumbnailImage: {
+    width: 80,
+    height: 80,
+    marginHorizontal: 5,
+    borderRadius: 8,
   },
 });
