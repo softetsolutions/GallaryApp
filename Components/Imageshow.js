@@ -8,6 +8,7 @@ export default function Imageshow({ images, goToHomePage, handleChooseNewFolder 
   const [showFlatList, setShowFlatList] = useState(true);
 
   const [initialIndex, setInitialIndex] = useState(0)
+  const [resizeMode, setResizeMode] = useState("cover");
   
   // Get screen dimensions
   const { width, height } = Dimensions.get('window');
@@ -18,8 +19,11 @@ export default function Imageshow({ images, goToHomePage, handleChooseNewFolder 
     width,
     height,
   }));
-console.log("imageShow component rendered")
-
+console.log("imageShow component rendered");
+  const toggleResizeMode = () => {
+    setResizeMode(resizeMode === "cover" ? "contain" : "cover");
+  };
+  
   return (
     <Modal
       visible={true}
@@ -49,7 +53,7 @@ console.log("imageShow component rendered")
                   style={{
                     width,
                     height: showFlatList ? height - 100 : height,
-                    resizeMode:"cover", 
+                    resizeMode: resizeMode, 
                   }}
                 />
               )}
@@ -63,13 +67,33 @@ console.log("imageShow component rendered")
                 />
               )}
             />
+            
+            {/* Resize Mode Toggle Button */}
+            <TouchableOpacity 
+              style={styles.resizeModeButton} 
+              onPress={toggleResizeMode}
+            >
+              <Text style={styles.resizeModeIcon}>
+                {resizeMode === "cover" ? "[ ]" : "[ + ]"}
+              </Text>
+              <Text style={styles.resizeModeText}>
+                {resizeMode === "cover" ? "Fit" : "Fill"}
+              </Text>
+            </TouchableOpacity>
+            
             {showFlatList && (
               <View style={styles.thumbnailContainer}>
                 <FlatList
                   data={formattedImages}
                   horizontal
                   renderItem={({ item, index }) => (
-                    <TouchableOpacity onPress={() => setInitialIndex(index)}>
+                    <TouchableOpacity 
+                      onPress={() => setInitialIndex(index)}
+                      style={[
+                        styles.thumbnailWrapper,
+                        initialIndex === index && styles.activeThumbnail
+                      ]}
+                    >
                       <Image
                         source={{ uri: item.url }}
                         style={styles.thumbnailImage}
@@ -77,6 +101,7 @@ console.log("imageShow component rendered")
                     </TouchableOpacity>
                   )}
                   keyExtractor={(item, index) => index.toString()}
+                  showsHorizontalScrollIndicator={false}
                 />
               </View>
             )}
@@ -112,11 +137,42 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    justifyContent: 'center',
+  },
+  thumbnailWrapper: {
+    borderWidth: 2,
+    borderColor: 'transparent',
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  activeThumbnail: {
+    borderColor: 'white',
   },
   thumbnailImage: {
     width: 80,
     height: 80,
-    marginHorizontal: 5,
-    borderRadius: 8,
+    borderRadius: 6,
+  },
+  resizeModeButton: {
+    position: 'absolute',
+    bottom: 110,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  resizeModeIcon: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  resizeModeText: {
+    color: 'white',
+    marginLeft: 5,
+    fontSize: 14,
   },
 });
