@@ -6,9 +6,7 @@ import ImageViewerHeader from './ImageViewerHeader';
 export default function Imageshow({ images, goToHomePage, handleChooseNewFolder }) {
 
   const [showFlatList, setShowFlatList] = useState(true);
-
-  const [initialIndex, setInitialIndex] = useState(0)
-  const [resizeMode, setResizeMode] = useState("cover");
+  const [initialIndex, setInitialIndex] = useState(0);
   
   // Get screen dimensions
   const { width, height } = Dimensions.get('window');
@@ -19,10 +17,8 @@ export default function Imageshow({ images, goToHomePage, handleChooseNewFolder 
     width,
     height,
   }));
-console.log("imageShow component rendered");
-  const toggleResizeMode = () => {
-    setResizeMode(resizeMode === "cover" ? "contain" : "cover");
-  };
+  
+  console.log("imageShow component rendered");
   
   return (
     <Modal
@@ -53,7 +49,7 @@ console.log("imageShow component rendered");
                   style={{
                     width,
                     height: showFlatList ? height - 100 : height,
-                    resizeMode: resizeMode, 
+                    resizeMode: "stretch", 
                   }}
                 />
               )}
@@ -67,20 +63,6 @@ console.log("imageShow component rendered");
                 />
               )}
             />
-            
-            {/* Resize Mode Toggle Button */}
-            <TouchableOpacity 
-              style={styles.resizeModeButton} 
-              onPress={toggleResizeMode}
-            >
-              <Text style={styles.resizeModeIcon}>
-                {resizeMode === "cover" ? "[ ]" : "[ + ]"}
-              </Text>
-              <Text style={styles.resizeModeText}>
-                {resizeMode === "cover" ? "Fit" : "Fill"}
-              </Text>
-            </TouchableOpacity>
-            
             {showFlatList && (
               <View style={styles.thumbnailContainer}>
                 <FlatList
@@ -152,27 +134,5 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 6,
-  },
-  resizeModeButton: {
-    position: 'absolute',
-    bottom: 110,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  resizeModeIcon: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  resizeModeText: {
-    color: 'white',
-    marginLeft: 5,
-    fontSize: 14,
   },
 });
