@@ -1,25 +1,14 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet, Image, FlatList, TouchableOpacity, Text, StatusBar,Dimensions } from 'react-native';
-import ImageViewer from 'react-native-image-zoom-viewer';
+import { Modal, View, StyleSheet, Image, FlatList,TouchableOpacity, Text, StatusBar,} from 'react-native';
+import FullScreenContainerImage from './FullScreenImage';
 import ImageViewerHeader from './ImageViewerHeader';
 
-export default function Imageshow({ images, goToHomePage, handleChooseNewFolder }) {
-
+export default function Imageshow({ images: propImages, goToHomePage, handleChooseNewFolder }) {
   const [showFlatList, setShowFlatList] = useState(true);
-  const [initialIndex, setInitialIndex] = useState(0);
-  
-  // Get screen dimensions
-  const { width, height } = Dimensions.get('window');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const formattedImages = images.map((obj) => ({
-    url: obj.uri,
-    fileName: obj.filename,
-    width,
-    height,
-  }));
-  
+  const images = propImages && propImages.length > 0 ? propImages : [];
   console.log("imageShow component rendered");
-  
   return (
     <Modal
       visible={true}
@@ -28,56 +17,40 @@ export default function Imageshow({ images, goToHomePage, handleChooseNewFolder 
     >
       <StatusBar hidden />
       <View style={styles.modalContainer}>
-        {formattedImages.length === 0 ? (
+        {images.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text>No Image Found...!</Text>
           </View>
         ) : (
           <>
-            <ImageViewer
-              index={initialIndex}
-              imageUrls={formattedImages}
-              style={styles.imageViewer}
-              backgroundColor="black"
-              onChange={(index) => setInitialIndex(index)}
-              saveToLocalByLongPress={false}
-              enableSwipeDown={false}
-              useNativeDriver={true}
-              renderImage={(props) => (
-                <Image
-                  {...props}
-                  style={{
-                    width,
-                    height: showFlatList ? height - 100 : height,
-                    resizeMode: "stretch", 
-                  }}
-                />
-              )}
-              renderHeader={(index) => (
+            <View style={styles.imageViewer}>
+              <FullScreenContainerImage source={{ uri: images[currentIndex].uri }} />
+              {/* Header overlay */}
+              <View style={styles.headerOverlay}>
                 <ImageViewerHeader
-                  imageName={formattedImages[index]?.fileName}
+                  imageName={images[currentIndex]?.filename}
                   goToHomePage={goToHomePage}
                   handleChooseNewFolder={handleChooseNewFolder}
                   setShowFlatList={setShowFlatList}
                   showFlatList={showFlatList}
                 />
-              )}
-            />
+              </View>
+            </View>
             {showFlatList && (
               <View style={styles.thumbnailContainer}>
                 <FlatList
-                  data={formattedImages}
+                  data={images}
                   horizontal
                   renderItem={({ item, index }) => (
                     <TouchableOpacity 
-                      onPress={() => setInitialIndex(index)}
+                      onPress={() => setCurrentIndex(index)}
                       style={[
                         styles.thumbnailWrapper,
-                        initialIndex === index && styles.activeThumbnail
+                        currentIndex === index && styles.activeThumbnail,
                       ]}
                     >
                       <Image
-                        source={{ uri: item.url }}
+                        source={{ uri: item.uri }}
                         style={styles.thumbnailImage}
                       />
                     </TouchableOpacity>
@@ -110,6 +83,13 @@ const styles = StyleSheet.create({
   imageViewer: {
     flex: 1,
     backgroundColor: 'black',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
   },
   thumbnailContainer: {
     height: 100,
